@@ -77,6 +77,7 @@ int main(int argc, char * argv[]){
   bool looseSkim = parameters.getParameter<bool>("looseSkim");
   std::string eventFileOut = parameters.getParameter<std::string>("eventFileOut");
   std::string FvTName = parameters.getParameter<std::string>("FvTName");
+  float SvBCut = parameters.getParameter<double>("SvBCut");
 
   //lumiMask
   const edm::ParameterSet& inputs = process.getParameter<edm::ParameterSet>("inputs");   
@@ -145,6 +146,7 @@ int main(int argc, char * argv[]){
 			JECSyst, friendFile,
 			looseSkim, FvTName);
   a.event->setTagger(bTagger, bTag);
+  a.event->setSvBCut(SvBCut);
   if(isMC){
     a.lumi     = lumi;
     a.xs       = xs;

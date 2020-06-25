@@ -176,6 +176,9 @@ void eventData::setTagger(std::string tagger, float tag){
     sortTag = sortDeepFlavB;
 }
 
+void eventData::setSvBCut(float cut){
+  SvBCut=cut;
+}
 
 
 void eventData::resetEvent(){
@@ -194,6 +197,7 @@ void eventData::resetEvent(){
   passDijetMass = false;
   passMDRs = false;
   passXWt = false;
+  passSvB = false;
   passDEtaBB = false;
   p4j    .SetPtEtaPhiM(0,0,0,0);
   canJet1_pt = -99;
@@ -385,6 +389,7 @@ void eventData::buildEvent(){
     #endif
     //((sqrt(pow(xbW/2.5,2)+pow((xW-0.5)/2.5,2)) > 1)&(xW<0.5)) || ((sqrt(pow(xbW/2.5,2)+pow((xW-0.5)/4.0,2)) > 1)&(xW>=0.5)); //(t->xWbW > 2); //(t->xWt > 2) & !( (t->m>173)&(t->m<207) & (t->W->m>90)&(t->W->m<105) );
     passXWt = t->rWbW > 3;
+    passSvB = (SvB_ps >= SvBCut);
   }
   if(threeTag && useJetCombinatoricModel) computePseudoTagWeight();
   if(threeTag && useLoadedJCM)            applyInputPseudoTagWeight();

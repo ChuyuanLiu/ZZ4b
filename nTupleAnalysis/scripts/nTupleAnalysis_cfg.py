@@ -60,6 +60,7 @@ parser.add_option(      '--jcmNameList', default=None, help="comma separated lis
 parser.add_option(      '--jcmNameLoad', default="", help="jcmName to load (has to be already store in picoAOD)")
 parser.add_option(      '--FvTName',    dest="FvTName", type="string", default="", help="FVT Name to load FvT+XXX")
 parser.add_option(      '--SvB_ONNX', dest="SvB_ONNX", default="", help="path to ONNX version of SvB model. If none specified, it won't be used.")
+parser.add_option(      '--SvBCut', type="float", dest="SvBCut", default=0.0, help="Set the cut applied to SvB_ps.")
 o, a = parser.parse_args()
 
 
@@ -321,6 +322,7 @@ process.nTupleAnalysis = cms.PSet(
     jcmNameLoad = cms.string(o.jcmNameLoad),
     FvTName     = cms.string(o.FvTName),
     SvB_ONNX = cms.string(o.SvB_ONNX),
+    SvBCut = cms.double(o.SvBCut),
     #reweight= cms.string(o.reweight),
     )
 

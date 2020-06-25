@@ -117,6 +117,7 @@ analysis::analysis(TChain* _events, TChain* _runs, TChain* _lumiBlocks, fwlite::
   if(histogramming >= 3) passDijetMass = new   tagHists("passDijetMass", fs, true,  isMC, blind, histDetailLevel, debug);
   if(histogramming >= 2) passMDRs      = new   tagHists("passMDRs",      fs, true,  isMC, blind, histDetailLevel, debug);
   if(histogramming >= 1) passXWt       = new   tagHists("passXWt",       fs, true,  isMC, blind, histDetailLevel, debug, event);
+  if(histogramming >= 1) passSvB       = new   tagHists("passSvB",       fs, true,  isMC, blind, histDetailLevel, debug, event);
   //if(histogramming > 1        ) passMDCs     = new   tagHists("passMDCs",   fs,  true, isMC, blind, debug);
   //if(histogramming > 0        ) passDEtaBB   = new   tagHists("passDEtaBB", fs,  true, isMC, blind, debug);
   //if(histogramming > 0        ) passDEtaBBNoTrig   = new   tagHists("passDEtaBBNoTrig", fs, true, isMC, blind);
@@ -830,6 +831,17 @@ int analysis::processEvent(){
   cutflow->Fill(event, "xWt");
 
   if(passXWt != NULL && event->passHLT) passXWt->Fill(event, event->views);
+
+  //
+  // Signal vs Background
+  //
+
+  if(!event->passSvB){
+    if(debug) cout << "Fail SvB" << endl;
+    return 0;
+  }
+  
+  if(passSvB != NULL && event->passHLT) passSvB->Fill(event, event->views);
 
   //
   // Don't need anything below here in cutflow for now.

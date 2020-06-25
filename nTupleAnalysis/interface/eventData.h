@@ -86,6 +86,9 @@ namespace nTupleAnalysis {
     std::string bTagger = "CSVv2";
     bool (*sortTag)(std::shared_ptr<nTupleAnalysis::jet>&, std::shared_ptr<nTupleAnalysis::jet>&);
 
+    //SvB_ps cut
+    float SvBCut;
+
     //triggers
     bool passL1              = false;
     bool passHLT             = false;
@@ -217,6 +220,7 @@ namespace nTupleAnalysis {
     bool passDijetMass;
     bool passMDRs;
     bool passXWt;
+    bool passSvB;
     bool passDEtaBB;
 
 
@@ -226,6 +230,7 @@ namespace nTupleAnalysis {
     eventData(TChain* t, bool mc, std::string y, bool d, bool _fastSkim = false, bool _doTrigEmulation = false, bool _isDataMCMix = false, bool _doReweight = false, std::string bjetSF = "", std::string btagVariations = "central",
 	      std::string JECSyst = "", bool looseSkim = false, bool is3bMixed = false, std::string FvTName=""); 
     void setTagger(std::string, float);
+    void setSvBCut(float);
     void update(long int);
     void buildEvent();
     void resetEvent();
