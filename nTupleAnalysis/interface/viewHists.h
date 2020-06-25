@@ -157,11 +157,11 @@ namespace nTupleAnalysis {
     TH2F* truthM4b_vs_mZH;
     TH1F* nTrueBJets;
 
+    TH1F* deepFlavB3;
+
     viewHists(std::string, fwlite::TFileService&, bool isMC = false, bool _debug = false, eventData* event = NULL);
     void Fill(eventData*, std::unique_ptr<eventView>&);
     ~viewHists(); 
-
-    TH1F* bTag3;
 
   };
 
