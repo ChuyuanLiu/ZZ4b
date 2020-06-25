@@ -327,7 +327,7 @@ void viewHists::Fill(eventData* event, std::unique_ptr<eventView> &view){
   }
 
   deepFlavB3->Fill((event->bTagJets[3])->deepFlavB, event->weight);
-  deepFlavB3_vs_deepFlavB2->Fill((event->bTagJets[3])->deepFlavB, (event->bTagJets[2])->deepFlavB, event->weight)
+  deepFlavB3_vs_deepFlavB2->Fill((event->bTagJets[3])->deepFlavB, (event->bTagJets[2])->deepFlavB, event->weight);
 
   if(debug) std::cout << "viewHists::Fill done " << std::endl;
   return;
