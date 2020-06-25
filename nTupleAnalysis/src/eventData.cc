@@ -562,6 +562,7 @@ void eventData::chooseCanJets(){
   std::sort(selJets.begin(), selJets.end(), sortTag);
   // take the four jets with highest btag score    
   for(uint i = 0; i < 4;        ++i) canJets.push_back(selJets.at(i));
+  for(uint i = 0; i < 4;        ++i) bTagJets.push_back(selJets.at(i));
   for(uint i = 4; i < nSelJets; ++i) othJets.push_back(selJets.at(i));
   for(uint i = 0; i < 3;        ++i) topQuarkBJets.push_back(selJets.at(i));
   for(uint i = 2; i < nSelJets; ++i) topQuarkWJets.push_back(selJets.at(i));

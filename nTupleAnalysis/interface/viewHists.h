@@ -161,6 +161,8 @@ namespace nTupleAnalysis {
     void Fill(eventData*, std::unique_ptr<eventView>&);
     ~viewHists(); 
 
+    TH1F* bTag3;
+
   };
 
 }

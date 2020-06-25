@@ -169,6 +169,7 @@ namespace nTupleAnalysis {
     std::vector<jetPtr> tagJets;//jets passing pt/eta and bTagging requirements
     std::vector<jetPtr> antiTag;//jets passing pt/eta and failing bTagging requirements
     std::vector<jetPtr> canJets;//jets used in Z/H boson candidates
+    std::vector<jetPtr> bTagJets;//canJets in the order of bTag
     std::vector<jetPtr> topQuarkBJets;//jets considered as candidate b-quarks from top decay
     std::vector<jetPtr> topQuarkWJets;//jets considered as candidate udsc-quarks from top-W decay
     std::vector<jetPtr> othJets;//other selected jets
