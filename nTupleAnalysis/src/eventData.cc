@@ -184,6 +184,7 @@ void eventData::setSvBCut(float cut){
 void eventData::resetEvent(){
   if(debug) std::cout<<"Reset eventData"<<std::endl;
   canJets.clear();
+  bTagJets.clear();
   othJets.clear();
   allNotCanJets.clear();
   topQuarkBJets.clear();
