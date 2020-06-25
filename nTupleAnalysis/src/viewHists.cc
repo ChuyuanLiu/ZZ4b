@@ -156,6 +156,7 @@ viewHists::viewHists(std::string name, fwlite::TFileService& fs, bool isMC, bool
     nTrueBJets = dir.make<TH1F>("nTrueBJets", (name+"/nTrueBJets; Number of true b-jets; Entries").c_str(),  16,-0.5,15.5);
   }
   deepFlavB3 = dir.make<TH1F>("deepFlavB3",(name+"/deepFlavB3; 4^{th} Boson Candidate Jet DeepFlavB;Entries").c_str(),100,0,1);
+  deepFlavB3_vs_deepFlavB2= dir.make<TH2F>("deepFlavB3_vs_deepFlavB2",(name+"/deepFlavB3_vs_deepFlavB2; 4^{th} vs 3^{rd} Boson Candidate Jet DeepFlavB;Entries").c_str(), 100,0,1, 100,0,1);
 
 } 
 
@@ -326,7 +327,7 @@ void viewHists::Fill(eventData* event, std::unique_ptr<eventView> &view){
   }
 
   deepFlavB3->Fill((event->bTagJets[3])->deepFlavB, event->weight);
-
+  deepFlavB3_vs_deepFlavB2->Fill((event->bTagJets[3])->deepFlavB, (event->bTagJets[2])->deepFlavB, event->weight)
 
   if(debug) std::cout << "viewHists::Fill done " << std::endl;
   return;
