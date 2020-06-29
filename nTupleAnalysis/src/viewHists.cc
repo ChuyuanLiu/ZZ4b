@@ -155,8 +155,8 @@ viewHists::viewHists(std::string name, fwlite::TFileService& fs, bool isMC, bool
     truthM4b_vs_mZH = dir.make<TH2F>("truthM4b_vs_mZH", (name+"/truthM4b_vs_mZH; True m_{4b} [GeV]; Reconstructed m_{ZH} [GeV];Entries").c_str(), 22, bins_m4b, 22, bins_m4b);
     nTrueBJets = dir.make<TH1F>("nTrueBJets", (name+"/nTrueBJets; Number of true b-jets; Entries").c_str(),  16,-0.5,15.5);
   }
-  deepFlavB3 = dir.make<TH1F>("deepFlavB3",(name+"/deepFlavB3; 4^{th} Boson Candidate Jet DeepFlavB;Entries").c_str(),100,0,1);
-  deepFlavB3_vs_deepFlavB2= dir.make<TH2F>("deepFlavB3_vs_deepFlavB2",(name+"/deepFlavB3_vs_deepFlavB2;4^{th} Boson Candidate Jet DeepFlavB;3^{rd} Boson Candidate Jet DeepFlavB;Entries").c_str(), 100,0,1, 100,0,1);
+  bTag3 = dir.make<TH1F>("bTag3",(name+"/bTag3; 4^{th} Boson Candidate Jet "+event->bTagger+";Entries").c_str(),100,event->bTag,1);
+  bTag3_vs_bTag2= dir.make<TH2F>("bTag3_vs_bTag2",(name+"/deepFlavB3_vs_deepFlavB2;4^{th} Boson Candidate Jet "+event->bTagger+";3^{rd} Boson Candidate Jet "+event->bTagger+";Entries").c_str(), 100,event->bTag,1, 100,event->bTag,1);
 
 } 
 
@@ -326,8 +326,8 @@ void viewHists::Fill(eventData* event, std::unique_ptr<eventView> &view){
     nTrueBJets->Fill(event->nTrueBJets, event->weight);
   }
 
-  deepFlavB3->Fill((event->bTagJets[3])->deepFlavB, event->weight);
-  deepFlavB3_vs_deepFlavB2->Fill((event->bTagJets[3])->deepFlavB, (event->bTagJets[2])->deepFlavB, event->weight);
+  bTag3->Fill((event->bTagJets[3])->deepFlavB, event->weight);
+  bTag3_vs_bTag2->Fill((event->bTagJets[3])->deepFlavB, (event->bTagJets[2])->deepFlavB, event->weight);
 
   if(debug) std::cout << "viewHists::Fill done " << std::endl;
   return;

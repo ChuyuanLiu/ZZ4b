@@ -157,8 +157,8 @@ namespace nTupleAnalysis {
     TH2F* truthM4b_vs_mZH;
     TH1F* nTrueBJets;
 
-    TH1F* deepFlavB3;
-    TH2F* deepFlavB3_vs_deepFlavB2;
+    TH1F* bTag3;
+    TH2F* bTag3_vs_bTag2;
 
     viewHists(std::string, fwlite::TFileService&, bool isMC = false, bool _debug = false, eventData* event = NULL);
     void Fill(eventData*, std::unique_ptr<eventView>&);

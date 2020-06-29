@@ -144,8 +144,8 @@ int main(int argc, char * argv[]){
 			doReweight, debug, fastSkim, doTrigEmulation, doTrigStudy, mcUnitWeight, isDataMCMix, skip4b, skip3b, is3bMixed, 
 			bjetSF, btagVariations,
 			JECSyst, friendFile,
-			looseSkim, FvTName);
-  a.event->setTagger(bTagger, bTag);
+			looseSkim, FvTName,
+      bTagger,bTag);
   a.event->setSvBCut(SvBCut);
   if(isMC){
     a.lumi     = lumi;

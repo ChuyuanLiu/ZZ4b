@@ -13,7 +13,7 @@ bool sortDeepB(    std::shared_ptr<jet>       &lhs, std::shared_ptr<jet>       &
 bool sortCSVv2(    std::shared_ptr<jet>       &lhs, std::shared_ptr<jet>       &rhs){ return (lhs->CSVv2     > rhs->CSVv2);     } // put largest  CSVv2 first in list
 bool sortDeepFlavB(std::shared_ptr<jet>       &lhs, std::shared_ptr<jet>       &rhs){ return (lhs->deepFlavB > rhs->deepFlavB); } // put largest  deepB first in list
 
-eventData::eventData(TChain* t, bool mc, std::string y, bool d, bool _fastSkim, bool _doTrigEmulation, bool _isDataMCMix, bool _doReweight, std::string bjetSF, std::string btagVariations, std::string JECSyst, bool looseSkim, bool _is3bMixed, std::string FvTName){
+eventData::eventData(TChain* t, bool mc, std::string y, bool d, bool _fastSkim, bool _doTrigEmulation, bool _isDataMCMix, bool _doReweight, std::string bjetSF, std::string btagVariations, std::string JECSyst, bool looseSkim, bool _is3bMixed, std::string FvTName, std::string bTagger, float bTag){
   std::cout << "eventData::eventData()" << std::endl;
   tree  = t;
   isMC  = mc;
@@ -29,7 +29,7 @@ eventData::eventData(TChain* t, bool mc, std::string y, bool d, bool _fastSkim, 
     jetPtMin = 35;
   }
   random = new TRandom3();
-
+  setTagger(bTagger, bTag);
   //std::cout << "eventData::eventData() tree->Lookup(true)" << std::endl;
   //tree->Lookup(true);
   std::cout << "eventData::eventData() tree->LoadTree(0)" << std::endl;
