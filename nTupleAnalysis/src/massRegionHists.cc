@@ -27,9 +27,9 @@ massRegionHists::massRegionHists(std::string name, fwlite::TFileService& fs, boo
   }
 
   SR = new viewHists(name+"/SR", fs, isMC, debug, event);
-  CR = new viewHists(name+"/CR", fs, isMC, debug);
-  SB = new viewHists(name+"/SB", fs, isMC, debug);
-  SCSR = new viewHists(name+"/SCSR", fs, isMC, debug);
+  CR = new viewHists(name+"/CR", fs, isMC, debug, event);
+  SB = new viewHists(name+"/SB", fs, isMC, debug, event);
+  SCSR = new viewHists(name+"/SCSR", fs, isMC, debug, event);
 
 } 
 
