@@ -157,7 +157,7 @@ viewHists::viewHists(std::string name, fwlite::TFileService& fs, bool isMC, bool
   }
   if(event){
     bTag3 = dir.make<TH1F>("bTag3",(name+"/bTag3; 4^{th} Boson Candidate Jet "+event->bTagger+";Entries").c_str(),100,event->bTag,1);
-    bTag3_vs_bTag2= dir.make<TH2F>("bTag3_vs_bTag2",(name+"/deepFlavB3_vs_deepFlavB2;4^{th} Boson Candidate Jet "+event->bTagger+";3^{rd} Boson Candidate Jet "+event->bTagger+";Entries").c_str(), 100,event->bTag,1, 100,event->bTag,1);
+    bTag3_vs_bTag2= dir.make<TH2F>("bTag3_vs_bTag2",(name+"/deepFlavB3_vs_deepFlavB2;4^{th} Boson Candidate Jet "+event->bTagger+";3^{rd} Boson Candidate Jet "+event->bTagger+";Entries").c_str(), 100,0,1, 100,0,1);
   }
   else{
     bTag3 = nullptr;
