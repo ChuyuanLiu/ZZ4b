@@ -157,6 +157,7 @@ namespace nTupleAnalysis {
     TH2F* truthM4b_vs_mZH;
     TH1F* nTrueBJets;
 
+    float (*getTag) (std::shared_ptr<jet> &);
     TH1F* bTag3;
     TH2F* bTag3_vs_bTag2;
 
