@@ -160,7 +160,7 @@ viewHists::viewHists(std::string name, fwlite::TFileService& fs, bool isMC, bool
       getTag = [](std::shared_ptr<jet> &jet){return jet->deepB};
     if(event->bTagger == "CSVv2")
       getTag = [](std::shared_ptr<jet> &jet){return jet->CSVv2};
-    if(event->bTagger == "deepFlavB" || bTagger == "deepjet")
+    if(event->bTagger == "deepFlavB" || event->bTagger == "deepjet")
       getTag = [](std::shared_ptr<jet> &jet){return jet->deepFlavB};
     bTag3 = dir.make<TH1F>("bTag3",(name+"/bTag3; 4^{th} Boson Candidate Jet "+event->bTagger+";Entries").c_str(),100,event->bTag,1);
     bTag3_vs_bTag2= dir.make<TH2F>("bTag3_vs_bTag2",(name+"/deepFlavB3_vs_deepFlavB2;4^{th} Boson Candidate Jet "+event->bTagger+";3^{rd} Boson Candidate Jet "+event->bTagger+";Entries").c_str(), 100,0,1, 100,0,1);
