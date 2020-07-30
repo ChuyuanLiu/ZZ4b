@@ -58,10 +58,16 @@ namespace nTupleAnalysis {
     tagHists* passPreSel    = NULL;
     tagHists* passDijetMass = NULL;
     tagHists* passMDRs      = NULL;
+<<<<<<< HEAD
     tagHists* passXWt       = NULL;
     tagHists* passSvB       = NULL;
     tagHists* passMDCs      = NULL;
     tagHists* passDEtaBB    = NULL;
+=======
+    //tagHists* passXWt       = NULL;
+    //tagHists* passMDCs      = NULL;
+    //tagHists* passDEtaBB    = NULL;
+>>>>>>> upstream/master
     //tagHists* passDEtaBBNoTrig  = NULL;
     //tagHists* passDEtaBBNoTrigJetPts  = NULL;
 
@@ -177,6 +183,7 @@ namespace nTupleAnalysis {
 
     UInt_t    m_h1_run       =  0;
     ULong64_t m_h1_event     =  0;
+    Bool_t    m_h1_hemiSign  =  0;
     Int_t     m_h1_NJet       =  0;
     Int_t     m_h1_NBJet      =  0;
     Int_t     m_h1_NNonSelJet =  0;
@@ -197,6 +204,7 @@ namespace nTupleAnalysis {
 
     UInt_t    m_h2_run       =  0;
     ULong64_t m_h2_event     =  0;
+    Bool_t    m_h2_hemiSign  =  0;
     Int_t     m_h2_NJet       =  0;
     Int_t     m_h2_NBJet      =  0;
     Int_t     m_h2_NNonSelJet =  0;

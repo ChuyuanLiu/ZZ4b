@@ -1,4 +1,5 @@
 import time, os, sys
+from pathlib import Path
 import multiprocessing
 from glob import glob
 from copy import copy
@@ -12,12 +13,8 @@ import matplotlibHelpers as pltHelper
 
 import argparse
 parser = argparse.ArgumentParser(description='Process some integers.')
-parser.add_argument('-d', '--data', default='/uscms/home/bryantp/nobackup/ZZ4b/data2018/picoAOD.h5',    type=str, help='Input dataset file in hdf5 format')
-parser.add_argument('--data4b',     default=None, help="Take 4b from this file if given, otherwise use --data for both 3-tag and 4-tag")
-parser.add_argument('-t', '--ttbar',      default='',    type=str, help='Input MC ttbar file in hdf5 format')
-parser.add_argument('--ttbar4b',          default=None, help="Take 4b ttbar from this file if given, otherwise use --ttbar for both 3-tag and 4-tag")
-parser.add_argument('-s', '--signal',     default='', type=str, help='Input dataset file in hdf5 format')
-parser.add_argument('-o', '--outdir',     default='.', type=str, help='outputDirectory')
+parser.add_argument('-i', '--inputFile', default='/uscms/home/bryantp/nobackup/ZZ4b/data2018/picoAOD.h5',    type=str, help='Input dataset file in hdf5 format')
+parser.add_argument('-o', '--outdir',     default='', type=str, help='outputDirectory')
 parser.add_argument('--weightName', default="mcPseudoTagWeight", help='Which weights to use for JCM.')
 parser.add_argument('--FvTName', default="FvT", help='Which weights to use for FvT.')
 args = parser.parse_args()
@@ -30,14 +27,16 @@ def getFrame(fileName):
     thisFrame['year'] = pd.Series(year*np.ones(thisFrame.shape[0], dtype=np.float32), index=thisFrame.index)
     return thisFrame
 
+
+
 def getFramesHACK(fileReaders,getFrame,dataFiles):
     largeFiles = []
     print("dataFiles was:",dataFiles)
-    # for d in dataFiles:
-    #     if Path(d).stat().st_size > 2e9:
-    #         print("Large File",d)
-    #         largeFiles.append(d)
-    #         dataFiles.remove(d)
+    for d in dataFiles:
+        if Path(d).stat().st_size > 2e9:
+            print("Large File",d)
+            largeFiles.append(d)
+            dataFiles.remove(d)
 
     results = fileReaders.map_async(getFrame, sorted(dataFiles))
     frames = results.get()
@@ -46,6 +45,7 @@ def getFramesHACK(fileReaders,getFrame,dataFiles):
         frames.append(getFrame(f))
 
     return frames
+
 
 
 
@@ -62,7 +62,6 @@ print("Using JCM weight with name: ",weightName)
 
 FvTName = args.FvTName
 print("Using FvT weight with name: ",FvTName)
-
 
 class nameTitle:
     def __init__(self,name,title):
@@ -86,13 +85,13 @@ zh = classInfo(abbreviation='zh', name=r'$ZH$ MC $\times100$', index=5, color='v
 dfs = []
 
 # Read .h5 files
-dataFiles = glob(args.data)
-if args.data4b:
-    dataFiles += glob(args.data4b)    
+dataFiles = glob(args.inputFile)
 
 frames = getFramesHACK(fileReaders,getFrame,dataFiles)
-
 dfD = pd.concat(frames, sort=False)
+
+for k in dfD.keys():
+    print(k)
 
 print("Add true class labels to data")
 dfD['d4'] =  dfD.fourTag
@@ -104,60 +103,22 @@ dfD['zh'] = pd.Series(np.zeros(dfD.shape[0], dtype=np.uint8), index=dfD.index)
 
 dfs.append(dfD)
 
-# Read .h5 files
-ttbarFiles = glob(args.ttbar)
-if args.ttbar4b:
-    ttbarFiles += glob(args.ttbar4b)    
-
-
-frames = getFramesHACK(fileReaders,getFrame,ttbarFiles)
-dfT = pd.concat(frames, sort=False)
-
-print("Add true class labels to ttbar MC")
-dfT['t4'] =  dfT.fourTag
-dfT['t3'] = (dfT.fourTag+1)%2
-dfT['d4'] = pd.Series(np.zeros(dfT.shape[0], dtype=np.uint8), index=dfT.index)
-dfT['d3'] = pd.Series(np.zeros(dfT.shape[0], dtype=np.uint8), index=dfT.index)
-dfT['zz'] = pd.Series(np.zeros(dfT.shape[0], dtype=np.uint8), index=dfT.index)
-dfT['zh'] = pd.Series(np.zeros(dfT.shape[0], dtype=np.uint8), index=dfT.index)
-
-dfs.append(dfT)
-
-if args.signal:
-    frames = []
-    for fileName in sorted(glob(args.signal)):
-        yearIndex = fileName.find('201')
-        year = float(fileName[yearIndex:yearIndex+4])
-        print("Reading",fileName)
-        thisFrame = pd.read_hdf(fileName, key='df')
-        print("Add year to dataframe",year)#,"encoded as",(year-2016)/2)
-        thisFrame['year'] = pd.Series(year*np.ones(thisFrame.shape[0], dtype=np.float32), index=thisFrame.index)
-        print("Add true class labels to signal")
-        if "ZZ4b201" in fileName: 
-            index = zz.index
-            thisFrame['zz'] = thisFrame.fourTag
-            thisFrame['zh'] = pd.Series(np.zeros(thisFrame.shape[0], dtype=np.uint8), index=thisFrame.index)
-        if "ZH4b201" in fileName: 
-            index = zh.index
-            thisFrame['zz'] = pd.Series(np.zeros(thisFrame.shape[0], dtype=np.uint8), index=thisFrame.index)
-            thisFrame['zh'] = thisFrame.fourTag
-        thisFrame['t4'] = pd.Series(np.zeros(thisFrame.shape[0], dtype=np.uint8), index=thisFrame.index)
-        thisFrame['t3'] = pd.Series(np.zeros(thisFrame.shape[0], dtype=np.uint8), index=thisFrame.index)
-        thisFrame['d4'] = pd.Series(np.zeros(thisFrame.shape[0], dtype=np.uint8), index=thisFrame.index)
-        thisFrame['d3'] = pd.Series(np.zeros(thisFrame.shape[0], dtype=np.uint8), index=thisFrame.index)
-        frames.append(thisFrame)
-    dfS = pd.concat(frames, sort=False)
-    dfs.append(dfS)
-
 
 print("concatenate dataframes")
 df = pd.concat(dfs, sort=False)
+print(df.head())
+for i in range(10):
+    print( df["nSelJets"][0:10].values[i],
+           df["SB"][0:10].values[i],
+           df["CR"][0:10].values[i],
+           df["SR"][0:10].values[i],
+           df[args.FvTName][0:10].values[i],
+           df[args.weightName][0:10].values[i]
+    )
 
 
-def setIndex(dataFrame):
-    i = pd.RangeIndex(dataFrame.shape[0])
-    dataFrame.set_index(i, inplace=True) 
-
+import sys
+sys.exit(1)
 
 class dataFrameOrganizer:
     def __init__(self, dataFrame):
@@ -181,16 +142,9 @@ class dataFrameOrganizer:
         self.dft4 = self.dfSelected.loc[ self.dfSelected.t4==True ]
         self.dft3 = self.dfSelected.loc[ self.dfSelected.t3==True ]
         self.dfbg = self.dfSelected.loc[ (self.dfSelected.d3==True) | (self.dfSelected.t4==True) ]
-        if args.signal:
-            self.dfzz = self.dfSelected.loc[ self.dfSelected.zz==True ]
-            self.dfzh = self.dfSelected.loc[ self.dfSelected.zh==True ]
-            self.dfsg = self.dfSelected.loc[ (self.dfSelected.zz==True) | (self.dfSelected.zh==True) ]
 
-    def plotVar(self, var, bins=None, xmin=None, xmax=None, ymin=None, ymax=None, reweight=False):
+    def plotVar(self, var, bins=None, xmin=None, xmax=None, reweight=False, regName=""):
 
-        d3t3Weights = None
-        d3t4Weights = None
-        ttbarErrorWeights = None
         if reweight:
             ttbarWeights = -getattr(self.dft3,weightName) * getattr(self.dft3,FvTName)
             # multijetWeights = np.concatenate((self.dfd3.mcPseudoTagWeight * self.dfd3.FvT, -self.dft3.mcPseudoTagWeight * self.dft3.FvT))
@@ -199,11 +153,6 @@ class dataFrameOrganizer:
             # backgroundWeights = np.concatenate((self.dfd3.mcPseudoTagWeight * self.dfd3.FvT, -self.dft3.mcPseudoTagWeight * self.dft3.FvT, self.dft4.mcPseudoTagWeight))
             background = np.concatenate((self.dfd3[var], self.dft4[var]))
             backgroundWeights = np.concatenate((getattr(self.dfd3,weightName) * getattr(self.dfd3,FvTName), getattr(self.dft4,weightName)))
-            # ttbar estimates from reweighted threetag data
-            d3t3Weights =          -1 * multijetWeights * getattr(self.dfd3,'FvT_pt3') / getattr(self.dfd3,'FvT_pd3')
-            d3t4Weights = getattr(self.dfd3,weightName) * getattr(self.dfd3,'FvT_pt4') / getattr(self.dfd3,'FvT_pd3')
-            ttbarErrorWeights = np.concatenate( (getattr(self.dft4,weightName),       -d3t4Weights,   ttbarWeights,       -d3t3Weights) )
-            ttbarError        = np.concatenate( (        self.dft4[var],        self.dfd3[var],     self.dft3[var], self.dfd3[var]    ) )
         else:
             ttbarWeights = -getattr(self.dft3,weightName)
             multijet = np.concatenate((self.dfd3[var], self.dft3[var]))
@@ -225,7 +174,7 @@ class dataFrameOrganizer:
                                       color='brown', alpha=1.0, linewidth=1)
         self.dst4 = pltHelper.dataSet(name=t4.name, 
                                       points =self.dft4[var],
-                                      weights=getattr(self.dft4,weightName), 
+                                      weights=getattr(self.dft4,weightName),
                                       color=t4.color, alpha=1.0, linewidth=1)
         self.dsm3 = pltHelper.dataSet(name='ThreeTag Multijet', 
                                       points =multijet,
@@ -235,37 +184,13 @@ class dataFrameOrganizer:
                                       points=self.dft3[var],
                                       weights=ttbarWeights,
                                       color=t3.color, alpha=1.0, linewidth=1)
-
         datasets = [self.dsd4,self.bkgd,self.dst4,self.dsm3,self.dst3]
-
-        if d3t3Weights is not None:
-            self.dsd3t3 = pltHelper.dataSet(name   =r'ThreeTag $t\bar{t}$ est.',
-                                            points =self.dfd3[var],
-                                            weights=d3t3Weights,
-                                            color=t3.color, alpha=0.5, linewidth=2)
-            datasets += [self.dsd3t3]
-
-        if d3t4Weights is not None:
-            self.dsd3t4 = pltHelper.dataSet(name   =r'FourTag $t\bar{t}$ est.',
-                                            points =self.dfd3[var],
-                                            weights=d3t4Weights,
-                                            color=t4.color, alpha=0.5, linewidth=2)
-            datasets += [self.dsd3t4]
-
-        if ttbarErrorWeights is not None:
-            self.dste = pltHelper.dataSet(name   =r'$t\bar{t}$ MC - $t\bar{t}$ est.',
-                                          points =ttbarError,
-                                          weights=ttbarErrorWeights,
-                                          color='black', alpha=0.5, linewidth=2)
-            datasets += [self.dste]
-
         if self.dfzz is not None:
             self.dszz = pltHelper.dataSet(name=zz.name,
                                           points=self.dfzz[var],
                                           weights=getattr(self.dfzz,weightName)*100,
                                           color=zz.color, alpha=1.0, linewidth=1)
             datasets += [self.dszz]
-
         if self.dfzh is not None:
             self.dszh = pltHelper.dataSet(name=zh.name,
                                           points=self.dfzh[var],
@@ -278,26 +203,22 @@ class dataFrameOrganizer:
             if type(xmin)==type(None): xmin = self.dfSelected[var].min()
             if type(xmax)==type(None): xmax = self.dfSelected[var].max()
             width = (xmax-xmin)/bins
-            bins = [xmin + b*width for b in range(0,bins+1)]
+            bins = [xmin + b*width for b in range(-1,bins+1)]
 
         args = {'dataSets': datasets,
                 'ratio': [0,1],
-                'ratioRange': [0.9,1.1] if reweight else [0.5, 1.5],
+                'ratioRange': [0.5,1.5],
                 'ratioTitle': 'Data / Model',
                 'bins': bins,
-                'xmin': xmin,
-                'xmax': xmax,
-                'ymin': ymin,
-                'ymax': ymax,
                 'xlabel': var.replace('_',' '),
                 'ylabel': 'Events / Bin',
                 }
         fig = pltHelper.histPlotter(**args)
-        figName = outputDir + "/"+var+('_reweight' if reweight else '')+'.pdf'
+        figName = outputDir + "/"+regName+"_"+var+('_reweight' if reweight else '')+'.pdf'
         fig.savefig(figName)
         print(figName)
 
-    def hist2d(self, dfName, xvar, yvar ,bins=50,range=None,reweight=False): # range = [[xmin, xmax], [ymin, ymax]]
+    def hist2d(self, dfName, xvar, yvar ,bins=50,range=None,reweight=False):
         df = getattr(self,dfName)
         x,y = df[xvar],df[yvar]
         if reweight:
@@ -319,50 +240,50 @@ class dataFrameOrganizer:
         print(figName)
 
 
-print("Blind 4 tag SR")
-df = df.loc[ (df.SR==False) | (df.d4==False) ]
+#print("Blind 4 tag SR")
+#df = df.loc[ (df.SR==False) | (df.d4==False) ]
 
 dfo = dataFrameOrganizer(df)
-
+#dfo.applySelection( (dfo.df.passHLT==True) & (dfo.df.SB==True) & (dfo.df.passXWt==True) )
 dfo.applySelection( (dfo.df.passHLT==True) & (dfo.df.SB==True) )
 
-#
-# Example plots
-#
-
-# dfo.plotVar('dRjjOther')
-# dfo.plotVar('dRjjOther', reweight=True)
-# dfo.hist2d('dfbg', 'canJet0_eta', 'FvT')
-
-# #dfo.df['SvB_q_max'] = dfo.df[['SvB_q_1234', 'SvB_q_1324', 'SvB_q_1423']].idxmax(axis=1)
-# SvB_q_score = dfo.df[['SvB_q_1234', 'SvB_q_1324', 'SvB_q_1423']].values
-# FvT_q_score = dfo.df[['FvT_q_1234', 'FvT_q_1324', 'FvT_q_1423']].values
-# SvB_q_max = np.amax(SvB_q_score, axis=1, keepdims=True)
-# FvT_q_max = np.amax(FvT_q_score, axis=1, keepdims=True)
-# events, SvB_q_max_index = np.where(SvB_q_score==SvB_q_max)
-# events, FvT_q_max_index = np.where(FvT_q_score==FvT_q_max)
-# dfo.df['SvB_q_max_index'] = SvB_q_max_index
-# dfo.df['FvT_q_max_index'] = FvT_q_max_index
-# FvT_q_at_SvB_q_max_index = FvT_q_score[events, SvB_q_max_index]
-# SvB_q_at_FvT_q_max_index = SvB_q_score[events, FvT_q_max_index]
-# dfo.df['FvT_q_at_SvB_q_max_index'] = FvT_q_at_SvB_q_max_index
-# dfo.df['SvB_q_at_FvT_q_max_index'] = SvB_q_at_FvT_q_max_index
-
-# dfo.applySelection( (dfo.df.passHLT==True) & (dfo.df.SB==True) & (dfo.df.xWt > 2) )
-
-# def plot_q_scores():
-#     names = ['SvB_q_1234', 'SvB_q_1324', 'SvB_q_1423', 'FvT_q_1234', 'FvT_q_1324', 'FvT_q_1423']
-#     for name in names:
-#         dfo.plotVar(name, xmin=0, xmax=1, bins=20, reweight=True)
-#     dfo.plotVar('SvB_q_max_index', xmin=-0.5, xmax=2.5, bins=3, reweight=True)
-#     dfo.plotVar('FvT_q_max_index', xmin=-0.5, xmax=2.5, bins=3, reweight=True)
-#     dfo.plotVar('FvT_q_at_SvB_q_max_index', xmin=0, xmax=1, bins=20, reweight=True)    
-#     dfo.plotVar('SvB_q_at_FvT_q_max_index', xmin=0, xmax=1, bins=20, reweight=True)    
-
-# plot_q_scores()
 
 
-# get good example events for illustration of classifier response
-# dfo.applySelection( (dfo.df.passHLT==True) )
-# Get Year of most signal like event
-# dfo.dfzh[ dfo.dfzh.SvB_pzh.max() == dfo.dfzh.SvB_pzh ].year
+#dfo.plotVar('dRjjOther')
+#dfo.plotVar('dRjjOther', reweight=True)
+varsToPlot = [FvTName,FvTName+'_p3', 'SvB_ps', 'SvB_pzz', 'SvB_pzh', 'nSelJets','dR0123', 'dR0213', 'dR0312']
+
+for v in varsToPlot:
+    xmax = None
+    if not v.find('SvB') == -1: xmax = 1.0
+    if not v.find('FvT') == -1: xmax = 2.0
+
+    dfo.plotVar(v, regName="SB", xmin=0.0, xmax=xmax)
+    dfo.plotVar(v, regName="SB", xmin=0.0, xmax=xmax,reweight=True)
+
+
+#dfo.applySelection( (dfo.df.passHLT==True) & (dfo.df.CR==True) & (dfo.df.passXWt==True) )
+dfo.applySelection( (dfo.df.passHLT==True) & (dfo.df.CR==True) )
+
+
+for v in varsToPlot:
+    xmax = None
+    if not v.find('SvB') == -1: xmax = 1.0
+    if not v.find('FvT') == -1: xmax = 2.0
+
+    dfo.plotVar(v, regName="CR", xmin=0., xmax=xmax)
+    dfo.plotVar(v, regName="CR",xmin=0., xmax=xmax, reweight=True)
+
+
+#dfo.applySelection( (dfo.df.passHLT==True) & (dfo.df.SR==True) & (dfo.df.passXWt==True) )
+dfo.applySelection( (dfo.df.passHLT==True) & (dfo.df.SR==True) )
+
+
+for v in varsToPlot:
+    xmax = None
+    if not v.find('SvB') == -1: xmax = 1.0
+    if not v.find('FvT') == -1: xmax = 2.0
+
+    dfo.plotVar(v, regName="SR", xmin=0.0, xmax=xmax)
+    dfo.plotVar(v, regName="SR", xmin=0.0, xmax=xmax,reweight=True)
+
